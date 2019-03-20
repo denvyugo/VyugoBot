@@ -33,5 +33,5 @@ def parse_page(page_html, hub_name):
         for a in bs_hubs:
             if a.text == hub_name:
                 post_link = article.find('a', {'class': 'post__title_link'})
-                article_link += ', '.join((post_link.text, post_link.get('href'), '\n'))
+                article_link += '{}, {}\n'.format(post_link.text, post_link.get('href'))
     return article_link
