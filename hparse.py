@@ -1,8 +1,12 @@
 import requests
 from bs4 import BeautifulSoup as bs
+import os
+from datetime import date
 
+articles_ids = []
 
 def get_links(hub_name):
+    check_file()
     links = ''
     headers = {'User-Agent':
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36'}
@@ -18,12 +22,12 @@ def get_links(hub_name):
             else:
                 break
         except Exception as e:
-            break
+            print(e)
+    rewrite_ids()
     return links
 
 
 def parse_page(page_html, hub_name):
-    #page_html = open_page()
     article_link = ''
     bs_obj: bs = bs(page_html, 'html.parser')
     bs_articles = bs_obj.find_all('article', {'class': 'post post_preview'})
@@ -33,5 +37,30 @@ def parse_page(page_html, hub_name):
         for a in bs_hubs:
             if a.text == hub_name:
                 post_link = article.find('a', {'class': 'post__title_link'})
-                article_link += '{}, {}\n'.format(post_link.text, post_link.get('href'))
+                if post_link.get('href') not in articles_ids:
+                    articles_ids.append(post_link.get('href'))
+                    article_link += '{}, {}\n'.format(post_link.text, post_link.get('href'))
     return article_link
+
+
+def rewrite_ids():
+    file_name = get_filename()
+    with open(file_name, 'w', encoding='utf-8') as f:
+        f.write(';'.join(articles_ids))
+
+
+def get_filename():
+    date_today = date.today()
+    filename = date_today.strftime('%Y%m%d') + 'ids.txt'
+    return filename
+
+
+def check_file():
+    global articles_ids
+    file_name = get_filename()
+    if os.path.exists(file_name):
+        with open(file_name, 'r', encoding='utf-8') as f:
+            articles_ids = f.read().split(';')
+    else:
+        with open(file_name, 'w', encoding='utf-8') as f:
+            pass
