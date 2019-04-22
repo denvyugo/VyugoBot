@@ -15,7 +15,7 @@ def send_welcome(message: Message):
 
 @bot.message_handler(commands=['habr'])
 def send_welcome(message: Message):
-    text_message = hparse.get_links(hub_name='Python')
+    text_message = hparse.get_links(hub_name='Python', path=hparse.__file__)
     if len(text_message) == 0:
         text_message = 'There is no new interesting articles.'
     bot.send_message(chat_id=message.chat.id, text=text_message)

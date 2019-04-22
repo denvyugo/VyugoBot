@@ -5,8 +5,8 @@ from datetime import date
 
 articles_ids = []
 
-def get_links(hub_name):
-    check_file()
+def get_links(hub_name, path):
+    check_file(path)
     links = ''
     headers = {'User-Agent':
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36'}
@@ -31,7 +31,6 @@ def parse_page(page_html, hub_name):
     article_link = ''
     bs_obj: bs = bs(page_html, 'html.parser')
     bs_articles = bs_obj.find_all('article', {'class': 'post post_preview'})
-    i = 0
     for article in bs_articles:
         bs_hubs = article.find_all('a', {'class': 'hub-link'})
         for a in bs_hubs:
@@ -55,12 +54,19 @@ def get_filename():
     return filename
 
 
-def check_file():
+def check_file(dir_name):
     global articles_ids
     file_name = get_filename()
     if os.path.exists(file_name):
         with open(file_name, 'r', encoding='utf-8') as f:
             articles_ids = f.read().split(';')
     else:
+        _delete_ids(dir_name)
         with open(file_name, 'w', encoding='utf-8') as f:
             pass
+
+def _delete_ids(dir_name):
+    for root, dirs, names in os.walk(dir_name):
+        for name in names:
+            if 'ids.txt' in name:
+                os.remove(os.path.join(root, name))
